@@ -1,20 +1,20 @@
-import { Layout as AntdLayout, Menu, Button, Avatar, Dropdown, Space, Typography, Drawer } from 'antd';
+import { Layout as AntdLayout, Button, Avatar, Dropdown, Space, Typography, Drawer } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   UserOutlined, 
   LogoutOutlined, 
   SettingOutlined,
-  DashboardOutlined,
-  FileTextOutlined,
-  MenuOutlined
+  MenuOutlined,
+  CloseOutlined
 } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../hooks/useStore';
 import { logger } from '../utils/logger';
 import type { MenuProps } from 'antd';
+import Sidebar from './Sidebar';
 
-const { Header, Content, Sider } = AntdLayout;
+const { Header, Content } = AntdLayout;
 const { Title } = Typography;
 
 interface LayoutProps {
@@ -24,8 +24,26 @@ interface LayoutProps {
 const Layout = observer(({ children }: LayoutProps) => {
   const userStore = useUserStore();
   const navigate = useNavigate();
-  const location = useLocation();
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuVisible(prev => !prev);
+    logger.log(`Layout: mobile menu ${mobileMenuVisible ? 'closed' : 'opened'}`);
+  };
+  
+  // Effect to handle closing menu when resizing window
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && mobileMenuVisible) {
+        setMobileMenuVisible(false);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mobileMenuVisible]);
 
   const handleLogout = async () => {
     logger.log('Layout: logout requested');
@@ -76,33 +94,18 @@ const Layout = observer(({ children }: LayoutProps) => {
     }
   ];
 
-  const sidebarMenuItems: MenuProps['items'] = [
-    {
-      key: '/posts',
-      icon: <FileTextOutlined />,
-      label: 'Posts',
-      onClick: () => navigate('/posts')
-    },
-    ...(userStore.isAdmin ? [{
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-      onClick: () => navigate('/dashboard')
-    }] : [])
-  ];
-
   return (
     <AntdLayout className="app-layout">
       <Header className="layout-header">
         <div className="header-left">
           <Button
             type="text"
-            icon={<MenuOutlined />}
-            onClick={() => setMobileMenuVisible(true)}
+            icon={mobileMenuVisible ? <CloseOutlined /> : <MenuOutlined />}
+            onClick={toggleMobileMenu}
             className="mobile-menu-trigger"
           />
-          <Title level={4} className="logo">
-            Hello World!
+          <Title level={5} className="logo">
+            Pobably React!
           </Title>
         </div>
         
@@ -121,29 +124,31 @@ const Layout = observer(({ children }: LayoutProps) => {
       </Header>
       
       <AntdLayout>
-        <Sider width={240} className="layout-sider">
-          <Menu
-            mode="inline"
-            selectedKeys={[location.pathname]}
-            items={sidebarMenuItems}
-          />
-        </Sider>
-
+        {/* Desktop Sidebar */}
+        <Sidebar className="desktop-sidebar" />
+        
         {/* Mobile Drawer */}
         <Drawer
-          title="Menu"
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Menu</span>
+              <Button 
+                type="text" 
+                icon={<CloseOutlined />} 
+                onClick={toggleMobileMenu} 
+                size="small"
+              />
+            </div>
+          }
           placement="left"
-          onClose={() => setMobileMenuVisible(false)}
+          onClose={toggleMobileMenu}
           open={mobileMenuVisible}
           className="mobile-menu-drawer"
           width={250}
+          closable={false}
+          maskClosable={true}
         >
-          <Menu
-            mode="inline"
-            selectedKeys={[location.pathname]}
-            items={sidebarMenuItems}
-            onClick={() => setMobileMenuVisible(false)}
-          />
+          <Sidebar mode="vertical" onClose={toggleMobileMenu} />
         </Drawer>
         
         <Content className="layout-content">

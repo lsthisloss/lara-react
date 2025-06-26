@@ -8,40 +8,13 @@
 // Import component styles
 @import 'layout';
 @import 'dashboard';
+@import 'modals';
 
 // Import page styles
 @import 'auth';
 @import 'profile';
 @import 'settings';
 @import 'posts';
-
-// Global responsive modal styles
-.ant-modal {
-  @include mobile-only {
-    max-width: 95vw !important;
-    width: 95vw !important;
-    margin: 0 auto;
-    top: 20px;
-  }
-  
-  .ant-modal-content {
-    @include mobile-only {
-      border-radius: 8px;
-    }
-  }
-  
-  .ant-modal-body {
-    @include mobile-only {
-      padding: 16px;
-    }
-  }
-  
-  .ant-modal-header {
-    @include mobile-only {
-      padding: 16px 16px 12px;
-    }
-  }
-}
 
 // Responsive table styles
 .ant-table-wrapper {

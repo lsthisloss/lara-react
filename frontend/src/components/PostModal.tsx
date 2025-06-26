@@ -1,8 +1,9 @@
-import { Modal, Form, Input, Button, message } from 'antd';
+import { Form, Input, Button, message, Alert } from 'antd';
 import { observer } from 'mobx-react-lite';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePostStore } from '../hooks/useStore';
 import { logger } from '../utils/logger';
+import CustomModal from './CustomModal';
 
 const { TextArea } = Input;
 
@@ -15,8 +16,12 @@ interface PostModalProps {
 const PostModal = observer(({ visible, onCancel, editingPost }: PostModalProps) => {
   const postStore = usePostStore();
   const [form] = Form.useForm();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (values: { title: string; content: string }) => {
+    // Clear any previous errors
+    setErrorMessage(null);
+    
     try {
       if (editingPost) {
         await postStore.updatePost(editingPost.id, values);
@@ -28,9 +33,16 @@ const PostModal = observer(({ visible, onCancel, editingPost }: PostModalProps) 
       
       form.resetFields();
       onCancel();
-    } catch (error) {
+    } catch (error: any) {
       logger.error('PostModal: Failed to save post', error);
-      message.error('Failed to save post');
+      
+      // Handle different types of errors
+      const errorMsg = error?.response?.data?.message || 
+                      error?.message || 
+                      'Failed to save post. Please try again.';
+                      
+      setErrorMessage(errorMsg);
+      message.error(errorMsg);
     }
   };
 
@@ -65,16 +77,39 @@ const PostModal = observer(({ visible, onCancel, editingPost }: PostModalProps) 
   }, [visible, editingPost, form]);
 
   return (
-    <Modal
+    <CustomModal
       title={editingPost ? 'Edit Post' : 'Create New Post'}
-      open={visible}
-      onCancel={handleCancel}
-      footer={null}
-      width="90%"
-      style={{ maxWidth: 600 }}
-      centered
-      destroyOnClose={true}
+      isOpen={visible}
+      onClose={handleCancel}
+      width="600px"
+      className="post-modal"
+      footer={
+        <div className="post-modal-actions">
+          <Button onClick={handleCancel} size="large">
+            Cancel
+          </Button>
+          <Button 
+            type="primary" 
+            onClick={() => form.submit()}
+            loading={postStore.loading}
+            size="large"
+          >
+            {editingPost ? 'Update Post' : 'Create Post'}
+          </Button>
+        </div>
+      }
     >
+      {errorMessage && (
+        <Alert
+          message="Error"
+          description={errorMessage}
+          type="error"
+          showIcon
+          closable
+          style={{ marginBottom: 16 }}
+          onClose={() => setErrorMessage(null)}
+        />
+      )}
       <Form
         form={form}
         layout="vertical"
@@ -108,27 +143,9 @@ const PostModal = observer(({ visible, onCancel, editingPost }: PostModalProps) 
           />
         </Form.Item>
 
-        <Form.Item style={{ marginBottom: 0 }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'flex-end', 
-            gap: '8px',
-            flexWrap: 'wrap'
-          }}>
-            <Button onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button 
-              type="primary" 
-              htmlType="submit"
-              loading={postStore.loading}
-            >
-              {editingPost ? 'Update Post' : 'Create Post'}
-            </Button>
-          </div>
-        </Form.Item>
+        {/* Form footer is now handled by the CustomModal footer prop */}
       </Form>
-    </Modal>
+    </CustomModal>
   );
 });
 
