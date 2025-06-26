@@ -45,17 +45,24 @@ chmod +x run.sh && ./run.sh
 - `POST /api/login` - User authentication
 - `POST /api/logout` - User logout
 
+**User Management:**
+- `GET /api/user` - Get current user info
+- `PUT /api/user/profile` - Update user profile
+- `PUT /api/user/password` - Change user password
+- `GET /api/users` - Get all users list
+- `GET /api/users/{id}/profile` - Get specific user profile
+
 **Posts:**
 - `GET /api/posts` - List posts (with pagination)
 - `POST /api/posts` - Create post
 - `GET /api/posts/{id}` - Get post
-- `PUT /api/posts/{id}` - Update post
+- `PUT/PATCH /api/posts/{id}` - Update post
 - `DELETE /api/posts/{id}` - Delete post
 
 **Admin:**
 - `GET /api/admin/dashboard` - Dashboard stats
 - `GET /api/admin/users` - User management
-- `PATCH /api/admin/users/{id}/toggle-admin` - Toggle admin status
+- `PATCH /api/admin/users/{user}/toggle-admin` - Toggle admin status
 
 ---
 

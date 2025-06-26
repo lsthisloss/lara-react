@@ -32,13 +32,15 @@ COPY . /var/www/html
 # Install composer dependencies
 RUN composer install --optimize-autoloader
 
-# Make wait script executable
+# Make scripts executable
 RUN chmod +x /var/www/html/wait-for-postgres.sh
+RUN chmod +x /var/www/html/docker-entrypoint.sh
 
 # Set proper permissions for storage and bootstrap/cache directories
 RUN chmod -R 777 /var/www/html/storage
 RUN chmod -R 777 /var/www/html/bootstrap/cache
 
-# Expose port 9000 and start php-fpm server
+# Expose port 9000 and start with entrypoint
 EXPOSE 9000
-CMD ["./wait-for-postgres.sh", "db", "5432", "laravel", "password", "laravel", "php-fpm"]
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
+CMD ["php-fpm"]

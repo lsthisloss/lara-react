@@ -27,7 +27,7 @@ function app_run_dev() {
     docker compose down --remove-orphans 2>/dev/null || true
     
     # Собираем и запускаем
-    docker compose up --build
+    docker compose up -d --build
     
     # Генерируем ключ приложения если его нет
     if ! grep -q "APP_KEY=base64:" backend/.env; then
@@ -35,18 +35,24 @@ function app_run_dev() {
         docker compose exec backend php artisan key:generate --ansi
     fi
     
+    # Ждем готовности базы данных
+    echo -e "${CYAN}Waiting for database connection...${NORMAL}"
+    sleep 10
+    
+    # Выполняем миграции и сидеры
+    echo -e "${CYAN}Running migrations and seeders...${NORMAL}"
+    docker compose exec backend composer dump-autoload
+    docker compose exec backend php artisan migrate --force
+    docker compose exec backend php artisan db:seed --force
+    
+    echo -e "\n${GREEN}✅ Development environment ready!${NORMAL}"
+    echo -e "${CYAN}Frontend: http://localhost:3000${NORMAL}"
+    echo -e "${CYAN}Backend: http://localhost:8000/api${NORMAL}"
+    echo -e "${CYAN}Database: localhost:5432${NORMAL}"
+    echo -e "${CYAN}Admin: admin@dev.pro / password${NORMAL}"
+    
     # Показываем логи
     docker compose logs -f
-    
-    if [ $? -eq 0 ]; then
-        echo -e "\n${GREEN}✅ Development environment ready!${NORMAL}"
-        echo -e "${CYAN}Frontend: http://localhost:3000${NORMAL}"
-        echo -e "${CYAN}Backend: http://localhost:8000${NORMAL}"
-        echo -e "${CYAN}Database: localhost:5432${NORMAL}"
-    else
-        echo -e "\n${RED}Docker startup failed${NORMAL}"
-        echo -e "${CYAN}Check logs: docker compose logs${NORMAL}"
-    fi
 }
 
 function app_setup_local() {
@@ -136,6 +142,31 @@ function app_reset_db() {
     echo -e "${GREEN}✅ Database reset complete!${NORMAL}"
 }
 
+function app_migrate_seed() {
+    echo -e "\n${YELLOW}Running migrations and seeders...${NORMAL}\n"
+    
+    # Проверяем что контейнеры запущены
+    if ! docker compose ps backend | grep -q "Up"; then
+        echo -e "${RED}Backend container is not running. Please start containers first.${NORMAL}"
+        return 1
+    fi
+    
+    # Обновляем автолоадер
+    echo -e "${CYAN}Updating autoloader...${NORMAL}"
+    docker compose exec backend composer dump-autoload
+    
+    # Выполняем миграции
+    echo -e "${CYAN}Running migrations...${NORMAL}"
+    docker compose exec backend php artisan migrate --force
+    
+    # Выполняем сидеры
+    echo -e "${CYAN}Running seeders...${NORMAL}"
+    docker compose exec backend php artisan db:seed --force
+    
+    echo -e "${GREEN}✅ Migrations and seeders completed!${NORMAL}"
+    echo -e "${CYAN}Admin: admin@dev.pro / password${NORMAL}"
+}
+
 function app_first_setup() {
     echo -e "\n${YELLOW}Setting up project for the first time...${NORMAL}\n"
     
@@ -162,13 +193,21 @@ function app_first_setup() {
     echo -e "${CYAN}Generating application key...${NORMAL}"
     docker compose exec backend php artisan key:generate --ansi
     
-    # Ждем немного для инициализации
-    sleep 5
+    # Ждем готовности базы данных
+    echo -e "${CYAN}Waiting for database connection...${NORMAL}"
+    sleep 15
+    
+    # Выполняем миграции и сидеры
+    echo -e "${CYAN}Running migrations and seeders...${NORMAL}"
+    docker compose exec backend composer dump-autoload
+    docker compose exec backend php artisan migrate --force
+    docker compose exec backend php artisan db:seed --force
     
     echo -e "\n${GREEN}✅ First setup complete!${NORMAL}"
     echo -e "${CYAN}Frontend: http://localhost:3000${NORMAL}"
-    echo -e "${CYAN}Backend: http://localhost:8000${NORMAL}"
+    echo -e "${CYAN}Backend: http://localhost:8000/api${NORMAL}"
     echo -e "${CYAN}Database: localhost:5432${NORMAL}"
+    echo -e "${CYAN}Admin: admin@dev.pro / password${NORMAL}"
 }
 
 # Основное меню
@@ -191,6 +230,7 @@ if [ -z $choice ]; then
     echo "  4 - Show Logs"
     echo "  5 - Clean Project (containers, volumes)"
     echo "  6 - Reset Database"
+    echo "  7 - Run Migrations & Seeders"
     echo "  --------------------------------------------------  "
     echo -e "${CYAN}Input action number > ${NORMAL}"
 
@@ -204,6 +244,7 @@ if [ -z $choice ]; then
     4) app_logs ;;
     5) app_clean ;;
     6) app_reset_db ;;
+    7) app_migrate_seed ;;
     *) echo -e "\n${RED}Invalid action number${NORMAL}\n" ;;
     esac
 fi
