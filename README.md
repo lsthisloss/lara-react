@@ -95,6 +95,32 @@ Database: localhost:5432
 
 ---
 
+## 🧪 API Testing with Postman
+
+**Ready-to-use Postman collection** for testing all API endpoints:
+
+📁 **Collection Location:** `backend/postman_collection.json`
+
+**Import Steps:**
+1. Open Postman
+2. Click **Import** → **Upload Files**
+3. Select `backend/postman_collection.json`
+4. Collection "Laravel React SPA API" will be added
+
+**Pre-configured:**
+- ✅ Base URL: `http://localhost:8000/api`
+- ✅ Authentication token variable
+- ✅ All endpoints with sample requests
+- ✅ Environment variables for easy switching
+
+**Usage:**
+1. Register/Login to get auth token
+2. Token automatically saves to `{{auth_token}}` variable
+3. All protected routes use Bearer authentication
+4. Test all CRUD operations with sample data
+
+---
+
 ## 👑 Admin Access
 
 ```
@@ -154,4 +180,7 @@ Password: password
 
 Built with ❤️ by **sk8** for modern web development    
 Development Timeline 6h
+
+
+
 
