@@ -18,6 +18,9 @@
 - **🔐 Sanctum SPA Auth** - CSRF protected sessions  
 - **📝 Posts CRUD** - Full content management
 - **👑 Admin Panel** - User & content moderation
+- **📱 Mobile Responsive** - Touch-friendly UI for all devices
+- **🏪 Content Store** - Digital content marketplace with CRUD
+- **⚡ MobX State** - Atomic transactions with runInAction
 - **🐳 Docker Setup** - One-command development
 
 ---
@@ -59,15 +62,9 @@ chmod +x run.sh && ./run.sh
 ## 👑 Admin Access
 
 ```
-Email: admin@example.com
+Email: admin@dev.pro
 Password: password
 ```
-
-**Use Cases:**
-1. **Store Management** - Create, edit, delete posts
-2. **User Administration** - Toggle admin status
-3. **Content Moderation** - Review and manage content
-4. **System Analytics** - Monitor dashboard statistics
 
 ---
 
@@ -75,10 +72,22 @@ Password: password
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend** | React 19 + TypeScript + Ant Design |
+| **Frontend** | React 19 + MobX + TypeScript + Ant Design |
 | **Backend** | Laravel 11 + Sanctum Auth |
 | **Database** | PostgreSQL |
 | **DevOps** | Docker Compose |
+| **Mobile** | Responsive Design + Touch UI |
+
+---
+
+## 📱 Mobile Responsive
+
+- **📱 Mobile-First Design** - Optimized for all screen sizes
+- **🎯 Touch-Friendly UI** - Ant Design responsive components
+- **📊 Adaptive Tables** - Horizontal scroll on mobile devices
+- **🔧 Modal Optimization** - Dynamic sizing for small screens
+- **⚡ Fast Performance** - Optimized for mobile networks
+- **🔄 MobX Reactivity** - Atomic state updates with runInAction for smooth UI
 
 ---
 
@@ -87,7 +96,7 @@ Password: password
 <details>
 <summary><strong>Admin Dashboard</strong></summary>
 
-![Admin Dashboard](https://github.com/user-attachments/assets/fb2d48c7-0414-44af-81d6-b26a1579f179)
+![Screenshot 2025-06-26 201116](https://github.com/user-attachments/assets/e4074886-c163-4d22-af34-2b3c2fbd4e7a)
 
 </details>
 
@@ -107,6 +116,6 @@ Password: password
 
 ---
 
-Built with ❤️ for modern web development
+Built with ❤️ by **sk8** for modern web development    
 Development Timeline 9h
 
