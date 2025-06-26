@@ -8,19 +8,23 @@ services:
     restart: unless-stopped
     volumes:
       - ./backend:/var/www/html
-      - ./backend/vendor:/var/www/html/vendor
+      - backend_vendor:/var/www/html/vendor
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=laravel
+      - DB_USERNAME=laravel
+      - DB_PASSWORD=password
     networks:
       - app-network
     depends_on:
       db:
         condition: service_healthy
-    command: >
-      sh -c "php artisan migrate --force &&
-             php artisan db:seed --force --class=UserSeeder &&
-             php artisan db:seed --force --class=PostSeeder &&
-             php-fpm"
     healthcheck:
-      test: ["CMD-SHELL", "php artisan tinker --execute='echo \"Backend ready\";'"]
+      test: ["CMD-SHELL", "php artisan --version >/dev/null 2>&1 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -94,4 +98,6 @@ networks:
 
 volumes:
   dbdata:
+    driver: local
+  backend_vendor:
     driver: local

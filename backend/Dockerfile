@@ -11,10 +11,10 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
-    postgresql-client
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    postgresql-client \
+    nano \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
@@ -26,19 +26,29 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy existing application directory contents
+# Copy composer files first (for better caching)
+COPY composer.json composer.lock* ./
+
+# Install dependencies (production optimized)
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+
+# Copy the rest of the application
 COPY . /var/www/html
 
-# Install composer dependencies
-RUN composer install --optimize-autoloader
+# Run post-install scripts and optimize autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction \
+    && composer dump-autoload --optimize --classmap-authoritative
 
-# Make scripts executable
-RUN chmod +x /var/www/html/wait-for-postgres.sh
-RUN chmod +x /var/www/html/docker-entrypoint.sh
+# Make scripts executable and set proper permissions
+RUN chmod +x /var/www/html/wait-for-postgres.sh \
+    && chmod +x /var/www/html/docker-entrypoint.sh \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/bootstrap/cache
 
-# Set proper permissions for storage and bootstrap/cache directories
-RUN chmod -R 777 /var/www/html/storage
-RUN chmod -R 777 /var/www/html/bootstrap/cache
+# Create .env from example if it doesn't exist
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
 
 # Expose port 9000 and start with entrypoint
 EXPOSE 9000

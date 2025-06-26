@@ -1,27 +1,71 @@
 #!/bin/bash
 set -e
 
-# Ждем готовности базы данных
-echo "Waiting for database connection..."
-php /var/www/html/wait-for-postgres.sh
+echo "🚀 Starting Laravel Backend Container..."
 
-# Автозапуск автолоадера
-echo "Updating autoloader..."
-composer dump-autoload --optimize
-
-# Автозапуск миграций
-echo "Running migrations..."
-php artisan migrate --force
-
-# Автозапуск сидеров (только если нет данных)
-echo "Checking if seeding is needed..."
-USER_COUNT=$(php artisan tinker --execute="echo App\Models\User::count();")
-if [ "$USER_COUNT" -eq "0" ]; then
-    echo "Seeding database..."
-    php artisan db:seed --force
-else
-    echo "Database already seeded, skipping..."
+# Ensure we have .env file
+if [ ! -f .env ]; then
+    echo "📋 Copying .env.example to .env"
+    cp .env.example .env
 fi
 
-echo "Starting PHP-FPM..."
+# Wait for database
+echo "⏳ Waiting for database connection..."
+timeout=60
+counter=0
+
+while ! pg_isready -h db -p 5432 -U laravel >/dev/null 2>&1; do
+    if [ $counter -ge $timeout ]; then
+        echo "❌ Database connection timeout after ${timeout}s"
+        exit 1
+    fi
+    echo "🔄 Waiting for database... (${counter}s/${timeout}s)"
+    sleep 2
+    counter=$((counter + 2))
+done
+
+echo "✅ Database is ready!"
+
+# Generate app key if not exists
+if ! grep -q "APP_KEY=base64:" .env; then
+    echo "🔑 Generating application key..."
+    php artisan key:generate --force
+fi
+
+# Verify and optimize autoloader
+echo "🔧 Installing and optimizing composer dependencies..."
+if [ ! -d "vendor" ] || [ ! -f "vendor/autoload.php" ]; then
+    composer install --no-dev --optimize-autoloader --no-interaction
+fi
+composer dump-autoload --optimize --classmap-authoritative --no-interaction
+
+# Clear all caches
+echo "🧹 Clearing caches..."
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+# Run migrations
+echo "🗄️ Running migrations..."
+php artisan migrate --force
+
+# Seed database if empty
+echo "🌱 Checking if database seeding is needed..."
+if ! php artisan tinker --execute="echo App\\Models\\User::count();" 2>/dev/null | grep -q "[1-9]"; then
+    echo "🌱 Seeding database..."
+    php artisan db:seed --force
+else
+    echo "✅ Database already has data, skipping seeding"
+fi
+
+# Cache configuration for production
+echo "⚡ Caching configuration..."
+php artisan config:cache
+php artisan route:cache
+
+echo "🎉 Laravel backend is ready!"
+echo "📍 API available at: http://localhost:8000/api"
+
+# Start PHP-FPM
 exec "$@"

@@ -31,7 +31,7 @@
 git clone https://github.com/lsthisloss/lara-react.git
 cd laravel-react-app
 chmod +x run.sh && ./run.sh
-# Select 0 for first setup, 1 for daily dev
+# Select 0
 ```
 
 <details>
