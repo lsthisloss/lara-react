@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -12,13 +13,13 @@ Route::post('/login', [AuthController::class, 'login']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
     
     // User profile routes
-    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
-    Route::put('/user/password', [AuthController::class, 'changePassword']);
-    Route::get('/users/{id}/profile', [AuthController::class, 'getUserProfile']);
-    Route::get('/users', [AuthController::class, 'getAllUsers']);
+    Route::get('/user', [UserController::class, 'getCurrentUser']);
+    Route::put('/user/profile', [UserController::class, 'updateProfile']);
+    Route::put('/user/password', [UserController::class, 'changePassword']);
+    Route::get('/users/{id}/profile', [UserController::class, 'getUserProfile']);
+    Route::get('/users', [UserController::class, 'getAllUsers']);
     
     // CRUD operations for posts
     Route::apiResource('posts', PostController::class);

@@ -13,7 +13,7 @@ export const AuthService = {
    */
   login: async (data: LoginFormValues): Promise<{ user: User; token: string }> => {
     logger.log('AuthService: login attempt', { email: data.email });
-    const response = await apiClient.post('/login', data);
+    const response = await apiClient.post('login', data);
     return response.data;
   },
 
@@ -22,7 +22,7 @@ export const AuthService = {
    */
   register: async (data: RegisterFormValues): Promise<{ user: User; token: string }> => {
     logger.log('AuthService: register attempt', { email: data.email });
-    const response = await apiClient.post('/register', data);
+    const response = await apiClient.post('register', data);
     return response.data;
   },
 
@@ -31,7 +31,7 @@ export const AuthService = {
    */
   logout: async (): Promise<void> => {
     logger.log('AuthService: logout attempt');
-    await apiClient.post('/logout');
+    await apiClient.post('logout');
     localStorage.removeItem('auth_token');
   },
 
