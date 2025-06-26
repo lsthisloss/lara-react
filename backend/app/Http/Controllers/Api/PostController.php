@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\PersonalAccessToken;
 
 /*
 Контроллер для управления постами.
@@ -36,46 +37,52 @@ class PostController extends Controller
             'content' => 'required|string',
         ]);
 
+        // Получаем Bearer токен из запроса напрямую
+        $bearerToken = $request->bearerToken();
+        
+        if (!$bearerToken) {
+            return response()->json(['error' => 'Unauthenticated - No token provided'], 401);
+        }
+        
+        // Находим токен в базе данных напрямую через Sanctum
+        $token = PersonalAccessToken::findToken($bearerToken);
+        
+        if (!$token) {
+            return response()->json(['error' => 'Unauthenticated - Invalid token'], 401);
+        }
+        
         // Получаем пользователя напрямую из токена
-        $token = $request->bearerToken();
-        $userId = null;
-        $userEmail = null;
+        $user = $token->tokenable;
         
-        if ($token) {
-            $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
-            if ($accessToken) {
-                $tokenUser = $accessToken->tokenable;
-                $userId = $tokenUser->id;
-                $userEmail = $tokenUser->email;
-                
-                error_log("PostController store - Token: " . substr($token, 0, 20) . "...");
-                error_log("PostController store - Token owner: ID={$userId}, Email={$userEmail}");
-            }
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated - User not found'], 401);
         }
         
-        // Если не смогли получить пользователя из токена, используем обычный способ
-        if (!$userId) {
-            $currentUser = $request->user();
-            if (!$currentUser) {
-                return response()->json(['error' => 'Unauthenticated'], 401);
-            }
-            $userId = $currentUser->id;
-            $userEmail = $currentUser->email;
-            
-            error_log("PostController store - Request user: ID={$userId}, Email={$userEmail}");
-        }
+        error_log("PostController store - Token: " . substr($bearerToken, 0, 20) . "...");
+        error_log("PostController store - User from token: ID={$user->id}, Email={$user->email}");
 
-        $post = Post::create([
+        // Прямая вставка в БД для обхода любых возможных модификаций
+        $userId = $user->id;
+        $postData = [
             'title' => $request->title,
             'content' => $request->content,
             'user_id' => $userId,
-        ]);
-
-        error_log("PostController post created - Post ID: {$post->id}, Post user_id: {$post->user_id}");
-
-        // Принудительно перезагружаем пост из БД с отношением
-        $post = Post::with('user')->find($post->id);
-
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+        
+        // Создаем пост напрямую
+        $post = new Post();
+        $post->forceFill($postData);
+        $post->saveQuietly();
+        
+        error_log("PostController post created - Post ID: {$post->id}, User ID: {$userId}");
+        
+        // Перезагружаем пост с отношениями для ответа
+        $post = Post::with('user')->findOrFail($post->id);
+        
+        error_log("PostController post loaded - Post ID: {$post->id}, User ID: {$post->user_id}, User: {$post->user->name}");
+        
         return new PostResource($post);
     }
 
@@ -92,27 +99,28 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        // Получаем пользователя и его ID из токена (если возможно)
-        $token = $request->bearerToken();
-        $userId = null;
+        // Получаем пользователя и его ID из токена
+        $bearerToken = $request->bearerToken();
         
-        if ($token) {
-            $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
-            if ($accessToken) {
-                $userId = $accessToken->tokenable_id;
-                $user = User::find($userId);
-            }
+        if (!$bearerToken) {
+            return response()->json(['error' => 'Unauthenticated - No token provided'], 401);
         }
         
-        // Если не нашли через токен, используем обычную аутентификацию
-        if (!$userId) {
-            $user = Auth::user();
-            $userId = Auth::id();
+        $token = PersonalAccessToken::findToken($bearerToken);
+        
+        if (!$token) {
+            return response()->json(['error' => 'Unauthenticated - Invalid token'], 401);
+        }
+        
+        $user = $token->tokenable;
+        
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated - User not found'], 401);
         }
         
         // Проверяем права доступа
-        $isAuthor = $post->user_id === $userId;
-        $isAdmin = $user && $user->isAdmin();
+        $isAuthor = $post->user_id === $user->id;
+        $isAdmin = $user->isAdmin();
         
         if (!$isAuthor && !$isAdmin) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -134,29 +142,30 @@ class PostController extends Controller
     /**
      * Удалить указанный ресурс из хранилища.
      */
-    public function destroy(Post $post)
+    public function destroy(Request $request, Post $post)
     {
-        // Получаем пользователя и его ID из токена (если возможно)
-        $token = request()->bearerToken();
-        $userId = null;
+        // Получаем пользователя и его ID из токена
+        $bearerToken = $request->bearerToken();
         
-        if ($token) {
-            $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
-            if ($accessToken) {
-                $userId = $accessToken->tokenable_id;
-                $user = User::find($userId);
-            }
+        if (!$bearerToken) {
+            return response()->json(['error' => 'Unauthenticated - No token provided'], 401);
         }
         
-        // Если не нашли через токен, используем обычную аутентификацию
-        if (!$userId) {
-            $user = Auth::user();
-            $userId = Auth::id();
+        $token = PersonalAccessToken::findToken($bearerToken);
+        
+        if (!$token) {
+            return response()->json(['error' => 'Unauthenticated - Invalid token'], 401);
+        }
+        
+        $user = $token->tokenable;
+        
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated - User not found'], 401);
         }
         
         // Проверяем права доступа
-        $isAuthor = $post->user_id === $userId;
-        $isAdmin = $user && $user->isAdmin();
+        $isAuthor = $post->user_id === $user->id;
+        $isAdmin = $user->isAdmin();
         
         if (!$isAuthor && !$isAdmin) {
             return response()->json(['message' => 'Unauthorized'], 403);

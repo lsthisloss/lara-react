@@ -18,25 +18,33 @@ class UserController extends Controller
      */
     public function getCurrentUser(Request $request)
     {
-        $token = $request->bearerToken();
-        $tokenPrefix = $token ? substr($token, 0, 20) . '...' : 'no token';
-        $user = null;
+        // Проверка нескольких способов получения пользователя для отладки
+        $userFromRequest = $request->user();
+        $userFromAuth = \Illuminate\Support\Facades\Auth::user();
         
-        // Получаем пользователя из токена напрямую (более надежно)
-        if ($token) {
-            $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
-            if ($accessToken) {
-                $user = User::find($accessToken->tokenable_id);
-                error_log("UserController getCurrentUser - Token: $tokenPrefix, Token owner ID: {$accessToken->tokenable_id}");
-            } else {
-                error_log("UserController getCurrentUser - Token not found in database");
+        // Токен напрямую
+        $bearerToken = $request->bearerToken();
+        $userFromToken = null;
+        
+        if ($bearerToken) {
+            $token = \Laravel\Sanctum\PersonalAccessToken::findToken($bearerToken);
+            if ($token) {
+                $userFromToken = $token->tokenable;
             }
         }
         
-        // Если не удалось получить из токена, пробуем стандартный способ
+        // Логирование результатов для отладки
+        error_log("UserController getCurrentUser - Request path: " . $request->path());
+        error_log("UserController getCurrentUser - Token: " . ($bearerToken ? substr($bearerToken, 0, 20) . '...' : 'no token'));
+        error_log("UserController getCurrentUser - User from request: " . ($userFromRequest ? "ID={$userFromRequest->id}" : 'null'));
+        error_log("UserController getCurrentUser - User from Auth: " . ($userFromAuth ? "ID={$userFromAuth->id}" : 'null'));
+        error_log("UserController getCurrentUser - User from token: " . ($userFromToken ? "ID={$userFromToken->id}" : 'null'));
+        
+        // Используем пользователя из токена, если доступен, иначе из запроса
+        $user = $userFromToken ?? $userFromRequest;
+        
         if (!$user) {
-            $user = $request->user();
-            error_log("UserController getCurrentUser - Token: $tokenPrefix, Request user ID: " . ($user ? $user->id : 'null'));
+            return response()->json(['error' => 'User not authenticated'], 401);
         }
         
         return response()->json($user);
