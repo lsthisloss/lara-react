@@ -39,16 +39,19 @@ if [ ! -d "vendor" ] || [ ! -f "vendor/autoload.php" ]; then
 fi
 composer dump-autoload --optimize --classmap-authoritative --no-interaction
 
-# Clear all caches
-echo "🧹 Clearing caches..."
+# Clear caches that don't require database
+echo "🧹 Clearing basic caches..."
 php artisan config:clear
-php artisan cache:clear
 php artisan route:clear
 php artisan view:clear
 
-# Run migrations
+# Run migrations first
 echo "🗄️ Running migrations..."
 php artisan migrate --force
+
+# Now clear cache that requires database
+echo "🧹 Clearing database cache..."
+php artisan cache:clear
 
 # Seed database if empty
 echo "🌱 Checking if database seeding is needed..."
