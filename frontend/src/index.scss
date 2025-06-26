@@ -1,0 +1,14 @@
+@import 'styles/variables';
+@import 'styles/mixins';
+@import 'styles/responsive';
+@import 'styles/base';
+@import 'styles/animations';
+@import 'styles/layout';
+@import 'styles/dashboard';
+@import 'styles/pages/authPage';
+@import 'styles/components/dashboard';
+
+
+
+// Import Ant Design
+@import '~antd/dist/reset.css';

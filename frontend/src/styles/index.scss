@@ -11,6 +11,57 @@
 
 // Import page styles
 @import 'auth';
+@import 'profile';
+@import 'settings';
+@import 'posts';
+
+// Global responsive modal styles
+.ant-modal {
+  @include mobile-only {
+    max-width: 95vw !important;
+    width: 95vw !important;
+    margin: 0 auto;
+    top: 20px;
+  }
+  
+  .ant-modal-content {
+    @include mobile-only {
+      border-radius: 8px;
+    }
+  }
+  
+  .ant-modal-body {
+    @include mobile-only {
+      padding: 16px;
+    }
+  }
+  
+  .ant-modal-header {
+    @include mobile-only {
+      padding: 16px 16px 12px;
+    }
+  }
+}
+
+// Responsive table styles
+.ant-table-wrapper {
+  @include mobile-only {
+    .ant-table {
+      font-size: 12px;
+      
+      .ant-table-thead > tr > th,
+      .ant-table-tbody > tr > td {
+        padding: 8px 4px;
+      }
+    }
+    
+    .ant-pagination {
+      .ant-pagination-options {
+        display: none;
+      }
+    }
+  }
+}
 
 // Utility classes
 .text-center { text-align: center; }

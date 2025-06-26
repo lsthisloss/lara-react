@@ -9,47 +9,55 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/*
+    * User - Модель пользователя
+    * Используется для аутентификации и авторизации
+    * Связана с моделью Post через отношение "имеет много"
+    */
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    /*
+    Атрибуты, которые могут быть массово присвоены.
+    */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    /*
+    Атрибуты, которые должны быть скрыты при сериализации.
+    */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    /*
+    Получает атрибуты, которые должны быть приведены к типу.
+    */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Проверяет, является ли пользователь администратором.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin;
     }
 }

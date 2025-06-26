@@ -1,5 +1,6 @@
 import { Modal, Form, Input, Button, message } from 'antd';
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { usePostStore } from '../hooks/useStore';
 import { logger } from '../utils/logger';
 
@@ -37,6 +38,31 @@ const PostModal = observer(({ visible, onCancel, editingPost }: PostModalProps) 
     form.resetFields();
     onCancel();
   };
+  
+  // При изменении видимости модального окна или редактируемого поста
+  // сбрасываем и устанавливаем значения формы
+  useEffect(() => {
+    // Только если модальное окно открыто
+    if (visible) {
+      // Сначала сбрасываем форму
+      form.resetFields();
+      
+      // Если есть редактируемый пост, заполняем форму его данными
+      if (editingPost) {
+        console.log('Setting form values from editingPost:', editingPost);
+        
+        // Небольшая задержка для гарантии, что форма инициализирована
+        setTimeout(() => {
+          form.setFieldsValue({
+            title: editingPost.title || '',
+            content: editingPost.content || ''
+          });
+        }, 100);
+      } else {
+        console.log('No editingPost provided, form was reset');
+      }
+    }
+  }, [visible, editingPost, form]);
 
   return (
     <Modal
@@ -44,16 +70,17 @@ const PostModal = observer(({ visible, onCancel, editingPost }: PostModalProps) 
       open={visible}
       onCancel={handleCancel}
       footer={null}
-      width={600}
+      width="90%"
+      style={{ maxWidth: 600 }}
+      centered
+      destroyOnClose={true}
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
-        initialValues={editingPost ? {
-          title: editingPost.title,
-          content: editingPost.content
-        } : {}}
+        preserve={false}
+        validateTrigger={['onChange', 'onBlur']}
       >
         <Form.Item
           name="title"
@@ -75,22 +102,30 @@ const PostModal = observer(({ visible, onCancel, editingPost }: PostModalProps) 
           ]}
         >
           <TextArea 
-            rows={6} 
+            rows={6}
+            autoSize={{ minRows: 4, maxRows: 8 }}
             placeholder="Write your post content here..." 
           />
         </Form.Item>
 
-        <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
-          <Button onClick={handleCancel} style={{ marginRight: 8 }}>
-            Cancel
-          </Button>
-          <Button 
-            type="primary" 
-            htmlType="submit"
-            loading={postStore.loading}
-          >
-            {editingPost ? 'Update Post' : 'Create Post'}
-          </Button>
+        <Form.Item style={{ marginBottom: 0 }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            gap: '8px',
+            flexWrap: 'wrap'
+          }}>
+            <Button onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button 
+              type="primary" 
+              htmlType="submit"
+              loading={postStore.loading}
+            >
+              {editingPost ? 'Update Post' : 'Create Post'}
+            </Button>
+          </div>
         </Form.Item>
       </Form>
     </Modal>

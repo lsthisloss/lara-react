@@ -14,3 +14,8 @@ export const useUserStore = () => rootStore.userStore;
  * Хук для доступа к хранилищу постов
  */
 export const usePostStore = () => rootStore.postStore;
+
+/**
+ * Хук для доступа к хранилищу дашборда
+ */
+export const useDashboardStore = () => rootStore.dashboardStore;

@@ -11,6 +11,8 @@ $text-color: rgba(0, 0, 0, 0.85);
 $text-color-secondary: rgba(0, 0, 0, 0.65);
 $text-color-light: rgba(0, 0, 0, 0.45);
 $text-color-inverse: #fff;
+$text-color-primary: #1890ff;
+$danger-color: #ff4d4f;
 
 // Background colors
 $background-color-base: #f5f5f5;
@@ -46,6 +48,7 @@ $border-radius-lg: 8px;
 $shadow-1: 0 2px 8px rgba(0, 0, 0, 0.15);
 $shadow-2: 0 4px 12px rgba(0, 0, 0, 0.15);
 $shadow-3: 0 8px 24px rgba(0, 0, 0, 0.12);
+$shadow-4: 0 16px 48px rgba(0, 0, 0, 0.15);
 
 // Transitions
 $transition-fast: 0.2s;

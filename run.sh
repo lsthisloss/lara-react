@@ -169,28 +169,6 @@ function app_first_setup() {
     echo -e "${CYAN}Frontend: http://localhost:3000${NORMAL}"
     echo -e "${CYAN}Backend: http://localhost:8000${NORMAL}"
     echo -e "${CYAN}Database: localhost:5432${NORMAL}"
-    echo -e "\n${YELLOW}Use ./run.sh 4 to see logs${NORMAL}"
-}
-
-function app_fix_permissions() {
-    echo -e "\n${YELLOW}Fixing file permissions...${NORMAL}\n"
-    
-    # Get current user info
-    CURRENT_USER=$(whoami)
-    USER_UID=$(id -u)
-    USER_GID=$(id -g)
-    
-    echo -e "${CYAN}Current user: ${CURRENT_USER} (${USER_UID}:${USER_GID})${NORMAL}"
-    
-    # Fix ownership of all project files
-    echo -e "${CYAN}Fixing ownership of project files...${NORMAL}"
-    sudo chown -R ${USER_UID}:${USER_GID} backend/ frontend/ 2>/dev/null || true
-    
-    # Make sure storage and cache directories are writable
-    echo -e "${CYAN}Setting proper permissions on Laravel directories...${NORMAL}"
-    chmod -R 755 backend/storage backend/bootstrap/cache 2>/dev/null || true
-    
-    echo -e "${GREEN}✅ File permissions fixed!${NORMAL}"
 }
 
 # Основное меню
@@ -213,7 +191,6 @@ if [ -z $choice ]; then
     echo "  4 - Show Logs"
     echo "  5 - Clean Project (containers, volumes)"
     echo "  6 - Reset Database"
-    echo "  7 - Fix File Permissions"
     echo "  --------------------------------------------------  "
     echo -e "${CYAN}Input action number > ${NORMAL}"
 
@@ -227,7 +204,6 @@ if [ -z $choice ]; then
     4) app_logs ;;
     5) app_clean ;;
     6) app_reset_db ;;
-    7) app_fix_permissions ;;
     *) echo -e "\n${RED}Invalid action number${NORMAL}\n" ;;
     esac
 fi

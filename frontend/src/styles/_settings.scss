@@ -1,0 +1,84 @@
+@import 'variables';
+@import 'mixins';
+@import 'responsive';
+
+.settings-page {
+  .settings-header {
+    margin-bottom: $spacing-xl;
+    
+    h2 {
+      margin-bottom: $spacing-xs;
+      color: $text-color-primary;
+    }
+    
+    p {
+      color: $text-color-secondary;
+      margin: 0;
+    }
+  }
+
+  .settings-content {
+    max-width: 800px;
+    margin: 0 auto;
+    
+    @include mobile-only {
+      max-width: 100%;
+    }
+  }
+
+  .settings-card {
+    margin-bottom: $spacing-lg;
+    box-shadow: $shadow-2;
+    border-radius: $border-radius-lg;
+    
+    .card-header {
+      @include flex-center;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-lg;
+      
+      h3 {
+        margin: 0;
+        color: $text-color-primary;
+        font-size: 18px;
+        font-weight: 600;
+      }
+      
+      .anticon {
+        color: $primary-color;
+        font-size: 20px;
+      }
+    }
+    
+    .ant-form-item {
+      margin-bottom: $spacing-md;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    .ant-form-item-label {
+      font-weight: 500;
+      color: $text-color-primary;
+    }
+  }
+
+  .settings-actions {
+    @include flex-center;
+    justify-content: center;
+    margin-top: $spacing-xl;
+    
+    @include mobile-only {
+      flex-direction: column;
+      gap: $spacing-md;
+      
+      .ant-space {
+        width: 100%;
+        
+        .ant-btn {
+          flex: 1;
+        }
+      }
+    }
+  }
+}

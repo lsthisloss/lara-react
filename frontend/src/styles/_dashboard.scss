@@ -1,78 +1,64 @@
 @import 'variables';
+@import 'mixins';
 @import 'responsive';
 
 .dashboard {
-  padding: $spacing-xl;
-  
-  @include mobile-only {
-    padding: $spacing-md;
-  }
-
-  &__header {
+  .dashboard-header {
     margin-bottom: $spacing-xl;
+    
+    h2 {
+      margin-bottom: $spacing-xs;
+      color: $text-color-primary;
+    }
+    
+    p {
+      color: $text-color-secondary;
+      margin: 0;
+    }
     
     @include mobile-only {
       margin-bottom: $spacing-lg;
       text-align: center;
-    }
-
-    h2 {
-      margin-bottom: $spacing-sm;
       
-      @include mobile-only {
+      h2 {
         font-size: 24px;
       }
-    }
-
-    p {
-      color: $text-color-secondary;
       
-      @include mobile-only {
+      p {
         font-size: 14px;
       }
     }
   }
 
-  &__stats {
+  .dashboard-stats {
     margin-bottom: $spacing-xl;
     
     @include mobile-only {
       margin-bottom: $spacing-lg;
     }
 
-    .ant-row {
-      // На мобильных делаем статистики в колонку
-      @include mobile-only {
-        flex-direction: column;
-        
-        .ant-col {
-          width: 100% !important;
-          margin-bottom: $spacing-md;
-          
-          &:last-child {
-            margin-bottom: 0;
-          }
-        }
-      }
-
-      // На планшетах 2 в ряд
-      @include tablet-only {
-        .ant-col {
-          width: 50% !important;
-          margin-bottom: $spacing-md;
-          
-          &:nth-child(3) {
-            margin-bottom: 0;
-          }
-        }
-      }
-    }
-
-    .ant-card {
+    .stats-card {
       height: 100%;
+      
+      &.primary {
+        border-left: 4px solid $primary-color;
+      }
+      
+      &.success {
+        border-left: 4px solid $success-color;
+      }
+      
+      &.warning {
+        border-left: 4px solid $warning-color;
+      }
       
       @include mobile-only {
         text-align: center;
+        margin-bottom: $spacing-md;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
       }
 
       .ant-statistic {
@@ -91,40 +77,58 @@
     }
   }
 
-  &__posts {
-    .ant-card {
-      .ant-card-head {
-        @include mobile-only {
-          .ant-card-head-title {
-            font-size: 16px;
-          }
-
-          .ant-card-extra {
-            .ant-btn {
+  .dashboard-content {
+    .posts-card {
+      box-shadow: $shadow-2;
+      border-radius: $border-radius-lg;
+      
+      .card-header {
+        @include flex-between;
+        align-items: center;
+        margin-bottom: $spacing-lg;
+        padding-bottom: $spacing-md;
+        border-bottom: 1px solid $border-color-light;
+        
+        h3 {
+          margin: 0;
+          color: $text-color-primary;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        
+        .create-btn {
+          height: 40px;
+          font-weight: 500;
+          
+          @include mobile-only {
+            font-size: 12px;
+            height: 32px;
+            padding: 4px 8px;
+            
+            .anticon {
               font-size: 12px;
-              padding: 4px 8px;
-              height: auto;
-              
-              .anticon {
-                font-size: 12px;
-              }
             }
+          }
+        }
+        
+        @include mobile-only {
+          flex-direction: column;
+          gap: $spacing-sm;
+          align-items: flex-start;
+          
+          .create-btn {
+            width: 100%;
           }
         }
       }
 
       .ant-table-wrapper {
-        // Делаем таблицу скроллируемой на мобильных
-        @include mobile-only {
-          overflow-x: auto;
-        }
-
         .ant-table {
-          @include mobile-only {
-            min-width: 600px; // Минимальная ширина для скролла
-          }
-
           .ant-table-thead > tr > th {
+            background: $background-color-light;
+            font-weight: 600;
+            color: $text-color-primary;
+            
             @include mobile-only {
               padding: 8px 4px;
               font-size: 12px;
@@ -135,31 +139,36 @@
             @include mobile-only {
               padding: 8px 4px;
               font-size: 12px;
+              
+              .ant-btn {
+                font-size: 10px;
+                height: 24px;
+                padding: 0 6px;
+              }
             }
           }
 
-          // Скрываем некоторые колонки на мобильных
+          // Hide table borders on mobile for cleaner look
           @include mobile-only {
-            .ant-table-thead > tr > th:nth-child(1), // ID
-            .ant-table-tbody > tr > td:nth-child(1) {
-              display: none;
-            }
-
-            .ant-table-thead > tr > th:nth-child(3), // Content
-            .ant-table-tbody > tr > td:nth-child(3) {
-              display: none;
-            }
-
-            .ant-table-thead > tr > th:nth-child(4), // Author
-            .ant-table-tbody > tr > td:nth-child(4) {
-              display: none;
+            .ant-table-thead,
+            .ant-table-tbody {
+              tr {
+                border: none;
+                
+                th, td {
+                  border: none;
+                  border-bottom: 1px solid #f0f0f0;
+                }
+              }
             }
           }
         }
 
         .ant-pagination {
+          margin-top: $spacing-lg;
+          text-align: center;
+          
           @include mobile-only {
-            text-align: center;
             margin-top: $spacing-md;
             
             .ant-pagination-item,
@@ -172,64 +181,11 @@
             }
 
             .ant-pagination-options {
-              display: none; // Скрываем опции на мобильных
+              display: none;
             }
           }
         }
       }
-    }
-  }
-}
-
-// Responsive Layout adjustments
-.ant-layout {
-  @include mobile-only {
-    .ant-layout-header {
-      padding: 0 $spacing-md;
-      height: 56px;
-      line-height: 56px;
-
-      .ant-typography {
-        font-size: 18px;
-      }
-
-      .ant-space {
-        font-size: 12px;
-
-        .ant-btn {
-          padding: 2px 4px;
-        }
-
-        .ant-avatar {
-          width: 24px;
-          height: 24px;
-          line-height: 22px;
-        }
-      }
-    }
-
-    .ant-layout-sider {
-      width: 200px !important;
-      flex: 0 0 200px !important;
-
-      .ant-menu {
-        padding-top: $spacing-sm;
-
-        .ant-menu-item {
-          margin: 0;
-          height: 36px;
-          line-height: 36px;
-          
-          .ant-menu-title-content {
-            font-size: 14px;
-          }
-        }
-      }
-    }
-
-    .ant-layout-content {
-      padding: $spacing-md;
-      min-height: calc(100vh - 56px);
     }
   }
 }

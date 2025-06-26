@@ -18,4 +18,15 @@ until PGPASSWORD=$password psql -h "$host" -p "$port" -U "$user" -d "$database" 
 done
 
 >&2 echo "PostgreSQL is up - executing command"
+
+# Run Laravel setup commands
+php artisan key:generate --force
+php artisan config:cache
+php artisan route:cache
+php artisan migrate --force
+php artisan cache:clear
+
+# Skip seeding for now to avoid Faker issues
+# php artisan db:seed --force
+
 exec $cmd

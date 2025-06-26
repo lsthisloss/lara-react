@@ -8,11 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Cors
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
+    /*
+    Хендлер CORS-запросов.
+    Обрабатывает предзапросы (OPTIONS) и добавляет необходимые заголовки
+    для поддержки кросс-доменных запросов.
+    */
     public function handle(Request $request, Closure $next): Response
     {
         // Handle preflight requests

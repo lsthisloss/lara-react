@@ -6,6 +6,7 @@ import {
   LogoutOutlined, 
   SettingOutlined,
   DashboardOutlined,
+  FileTextOutlined,
   MenuOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -41,7 +42,7 @@ const Layout = observer(({ children }: LayoutProps) => {
       icon: <UserOutlined />,
       label: 'Profile',
       onClick: () => {
-        // Здесь можно добавить навигацию к профилю
+        navigate('/profile');
         logger.log('Layout: navigate to profile');
       }
     },
@@ -50,7 +51,7 @@ const Layout = observer(({ children }: LayoutProps) => {
       icon: <SettingOutlined />,
       label: 'Settings',
       onClick: () => {
-        // Здесь можно добавить навигацию к настройкам
+        navigate('/settings');
         logger.log('Layout: navigate to settings');
       }
     },
@@ -67,11 +68,17 @@ const Layout = observer(({ children }: LayoutProps) => {
 
   const sidebarMenuItems: MenuProps['items'] = [
     {
-      key: '/',
+      key: '/posts',
+      icon: <FileTextOutlined />,
+      label: 'Posts',
+      onClick: () => navigate('/posts')
+    },
+    ...(userStore.isAdmin ? [{
+      key: '/dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
-      onClick: () => navigate('/')
-    }
+      onClick: () => navigate('/dashboard')
+    }] : [])
   ];
 
   return (
@@ -85,7 +92,7 @@ const Layout = observer(({ children }: LayoutProps) => {
             className="mobile-menu-trigger"
           />
           <Title level={4} className="logo">
-            Laravel React SPA
+            Hello World!
           </Title>
         </div>
         

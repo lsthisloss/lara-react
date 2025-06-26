@@ -1,8 +1,13 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { AuthService } from '../services/authService';
-import type { User, LoginFormValues, RegisterFormValues } from '../types/interfaces';
+import UserService from '../services/userService';
+import type { User, LoginFormValues, RegisterFormValues, UpdateProfileData, ChangePasswordData } from '../types/interfaces';
 import { logger } from '../utils/logger';
 import type { RootStore } from '../types/store';
+/*
+  * UserStore - Хранилище для управления состоянием пользователя
+  * Содержит методы для аутентификации, регистрации, обновления профиля и т.д.
+*/
 
 export class UserStore {
   rootStore: RootStore;
@@ -129,7 +134,7 @@ export class UserStore {
     this.loading = true;
     
     try {
-      const user = await AuthService.getCurrentUser();
+      const user = await UserService.getCurrentUser();
       
       runInAction(() => {
         this.user = user;
@@ -147,7 +152,87 @@ export class UserStore {
     }
   }
 
+  async updateProfile(data: UpdateProfileData) {
+    logger.log('UserStore: updating profile', data);
+    this.loading = true;
+    this.error = null;
+    
+    try {
+      const updatedUser = await UserService.updateProfile(data);
+      
+      runInAction(() => {
+        this.user = updatedUser;
+        this.loading = false;
+      });
+      
+      logger.log('UserStore: profile updated successfully');
+      return { success: true, user: updatedUser };
+    } catch (error: any) {
+      runInAction(() => {
+        this.error = error.response?.data?.message || 'Failed to update profile';
+        this.loading = false;
+      });
+      
+      logger.error('UserStore: failed to update profile', error);
+      return { success: false, message: this.error };
+    }
+  }
+
+  async changePassword(data: ChangePasswordData) {
+    logger.log('UserStore: changing password');
+    this.loading = true;
+    this.error = null;
+    
+    try {
+      await UserService.changePassword(data);
+      
+      runInAction(() => {
+        this.loading = false;
+      });
+      
+      logger.log('UserStore: password changed successfully');
+      return { success: true };
+    } catch (error: any) {
+      runInAction(() => {
+        this.error = error.response?.data?.message || 'Failed to change password';
+        this.loading = false;
+      });
+      
+      logger.error('UserStore: failed to change password', error);
+      return { success: false, message: this.error };
+    }
+  }
+  
+  async getUserProfile(userId: number) {
+    logger.log('UserStore: fetching user profile', { userId });
+    this.loading = true;
+    this.error = null;
+    
+    try {
+      const userProfile = await UserService.getUserProfile(userId);
+      
+      runInAction(() => {
+        this.loading = false;
+      });
+      
+      logger.log('UserStore: user profile fetched successfully');
+      return { success: true, user: userProfile };
+    } catch (error: any) {
+      runInAction(() => {
+        this.error = error.response?.data?.message || 'Failed to fetch user profile';
+        this.loading = false;
+      });
+      
+      logger.error('UserStore: failed to fetch user profile', error);
+      return { success: false, message: this.error };
+    }
+  }
+
   get isAuthenticated() {
     return !!this.user;
+  }
+
+  get isAdmin() {
+    return this.user?.is_admin === true;
   }
 }

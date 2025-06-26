@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { UserStore } from './userStore';
 import { PostStore } from './postStore';
+import { dashboardStore } from './dashboardStore';
 import { logger } from '../utils/logger';
 
 /**
@@ -9,6 +10,7 @@ import { logger } from '../utils/logger';
 class RootStore {
   userStore: UserStore;
   postStore: PostStore;
+  dashboardStore = dashboardStore;
 
   constructor() {
     logger.log('RootStore: Initializing');

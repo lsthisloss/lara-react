@@ -8,19 +8,25 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/*
+Контроллер для управления постами.
+Содержит методы для получения списка постов, создания, обновления и удаления постов.
+Использует ресурс PostResource для форматирования ответов API.
+*/
 class PostController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Показать список ресурсов.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::with('user')->latest()->paginate(10);
+        $perPage = $request->get('per_page', 10);
+        $posts = Post::with('user')->latest()->paginate($perPage);
         return PostResource::collection($posts);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Хранить новый ресурс.
      */
     public function store(Request $request)
     {
@@ -39,7 +45,7 @@ class PostController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Показать указанный ресурс.
      */
     public function show(Post $post)
     {
@@ -47,12 +53,12 @@ class PostController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Обновить указанный ресурс в хранилище.
      */
     public function update(Request $request, Post $post)
     {
-        // Check if the user can edit this post
-        if ($post->user_id !== Auth::id()) {
+        // Check if the user can edit this post (author or admin)
+        if ($post->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -70,12 +76,12 @@ class PostController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Удалить указанный ресурс из хранилища.
      */
     public function destroy(Post $post)
     {
-        // Проверяем, что пользователь может удалить этот пост
-        if ($post->user_id !== Auth::id()) {
+        // Проверяем, что пользователь может удалить этот пост (автор или админ)
+        if ($post->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
