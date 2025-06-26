@@ -8,7 +8,7 @@ import { logger } from '../utils/logger';
     * Содержит методы для получения данных панели, пользователей и управления правами доступа
 */
 
-class DashboardStore {
+export class DashboardStore {
   dashboardData: DashboardData | null = null;
   users: DashboardUser[] = [];
   loading = false;

@@ -105,22 +105,16 @@ export class UserStore {
     
     try {
       await AuthService.logout();
+      this.clearAllData();
       
-      runInAction(() => {
-        this.user = null;
-        this.loading = false;
-      });
-      
-      logger.log('UserStore: logout successful');
+      logger.log('UserStore: logout successful, all data cleared');
       return { success: true };
     } catch (error: any) {
-      runInAction(() => {
-        this.error = error.response?.data?.message || 'Logout failed';
-        this.loading = false;
-      });
+      // Даже если logout на сервере неудачен, очищаем локальные данные
+      this.clearAllData();
       
-      logger.error('UserStore: logout failed', error);
-      return { success: false, message: this.error };
+      logger.error('UserStore: logout failed on server, but local data cleared', error);
+      return { success: true }; // Возвращаем success, т.к. локально очистили
     }
   }
 
@@ -143,12 +137,9 @@ export class UserStore {
       
       logger.log('UserStore: user loaded successfully', { userId: user.id });
     } catch (error) {
-      runInAction(() => {
-        this.loading = false;
-        localStorage.removeItem('auth_token');
-      });
-      
-      logger.error('UserStore: failed to load user', error);
+      // При ошибке загрузки пользователя полностью очищаем данные
+      this.clearAllData();
+      logger.error('UserStore: failed to load user, token invalid', error);
     }
   }
 
@@ -226,6 +217,53 @@ export class UserStore {
       logger.error('UserStore: failed to fetch user profile', error);
       return { success: false, message: this.error };
     }
+  }
+
+  /**
+   * Полная очистка всех данных аутентификации и состояния
+   * Используется при logout и при обнаружении невалидного токена
+   */
+  clearAllData() {
+    logger.log('UserStore: clearing all authentication data');
+    
+    // Очистка localStorage
+    localStorage.removeItem('auth_token');
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('user_') || key.startsWith('auth_') || key.includes('admin')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Очистка sessionStorage
+    sessionStorage.clear();
+    
+    // Очистка состояния пользователя
+    runInAction(() => {
+      this.user = null;
+      this.loading = false;
+      this.error = null;
+      this.isAuthModalOpen = false;
+      this.authModalType = 'login';
+    });
+    
+    // Очистка постов
+    runInAction(() => {
+      this.rootStore.postStore.posts = [];
+      this.rootStore.postStore.currentPost = null;
+      this.rootStore.postStore.currentPage = 1;
+      this.rootStore.postStore.totalPages = 1;
+      this.rootStore.postStore.totalPosts = 0;
+      this.rootStore.postStore.error = null;
+    });
+    
+    // Очистка dashboard
+    runInAction(() => {
+      this.rootStore.dashboardStore.dashboardData = null;
+      this.rootStore.dashboardStore.users = [];
+      this.rootStore.dashboardStore.error = null;
+    });
+    
+    logger.log('UserStore: all data cleared');
   }
 
   get isAuthenticated() {

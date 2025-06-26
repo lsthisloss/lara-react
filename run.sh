@@ -191,7 +191,7 @@ function app_start_dev() {
     docker compose down --remove-orphans 2>/dev/null || true
     
     # Собираем и запускаем
-    docker compose up -d --build
+    docker compose up --build
     
     # Ждем готовности сервисов
     if ! app_wait_for_services; then
@@ -298,7 +298,7 @@ function app_reset_db() {
     docker volume rm laravel-react-app_dbdata 2>/dev/null || true
     
     # Запускаем заново
-    docker compose up -d db
+    docker compose up db
     
     # Ждем готовности базы
     echo -e "${CYAN}Waiting for database...${NORMAL}"
@@ -350,7 +350,7 @@ case "$choice" in
     1)
         # Start Docker Compose (dev env)
         docker compose down --remove-orphans 2>/dev/null || true
-        docker compose up -d --build
+        docker compose up --build
         echo -e "${GREEN}✅ Docker containers started!${NORMAL}"
         ;;
     2)
@@ -364,9 +364,43 @@ case "$choice" in
             echo -e "${CYAN}Copied frontend/.env.example to frontend/.env${NORMAL}"
         fi
         echo -e "${CYAN}Installing backend dependencies...${NORMAL}"
-        cd backend && composer install --no-dev --optimize-autoloader && cd ..
+        if [ -d "backend" ]; then
+            cd backend
+            if [ -f "composer.json" ]; then
+                composer install --no-dev --optimize-autoloader
+                if [ $? -eq 0 ]; then
+                    echo -e "${GREEN}✅ Backend dependencies installed${NORMAL}"
+                else
+                    echo -e "${RED}❌ Failed to install backend dependencies${NORMAL}"
+                    echo -e "${YELLOW}Trying to fix permissions...${NORMAL}"
+                    sudo chown -R $USER:$USER .
+                    composer install --no-dev --optimize-autoloader
+                fi
+            else
+                echo -e "${RED}❌ composer.json not found in backend directory${NORMAL}"
+            fi
+            cd ..
+        else
+            echo -e "${RED}❌ Backend directory not found${NORMAL}"
+        fi
+        
         echo -e "${CYAN}Installing frontend dependencies...${NORMAL}"
-        cd frontend && npm install && cd ..
+        if [ -d "frontend" ]; then
+            cd frontend
+            if [ -f "package.json" ]; then
+                npm install
+                if [ $? -eq 0 ]; then
+                    echo -e "${GREEN}✅ Frontend dependencies installed${NORMAL}"
+                else
+                    echo -e "${RED}❌ Failed to install frontend dependencies${NORMAL}"
+                fi
+            else
+                echo -e "${RED}❌ package.json not found in frontend directory${NORMAL}"
+            fi
+            cd ..
+        else
+            echo -e "${RED}❌ Frontend directory not found${NORMAL}"
+        fi
         echo -e "${GREEN}✅ Local dependencies installed!${NORMAL}"
         ;;
     3)

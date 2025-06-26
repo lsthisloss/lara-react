@@ -29,11 +29,21 @@ const Layout = observer(({ children }: LayoutProps) => {
 
   const handleLogout = async () => {
     logger.log('Layout: logout requested');
-    const result = await userStore.logout();
+    await userStore.logout();
     
-    if (result.success) {
-      navigate('/auth');
-    }
+    // Независимо от результата logout на сервере, всегда перенаправляем на страницу авторизации
+    // и очищаем любые остатки данных
+    navigate('/auth');
+    
+    // Дополнительная очистка на всякий случай
+    setTimeout(() => {
+      if (localStorage.getItem('auth_token')) {
+        logger.warn('Layout: auth_token still present after logout, clearing manually');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.reload(); // Принудительная перезагрузка
+      }
+    }, 100);
   };
 
   const userMenuItems: MenuProps['items'] = [

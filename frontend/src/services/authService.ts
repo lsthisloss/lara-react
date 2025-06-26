@@ -32,7 +32,18 @@ export const AuthService = {
   logout: async (): Promise<void> => {
     logger.log('AuthService: logout attempt');
     await apiClient.post('logout');
+    
+    // Полная очистка всех данных аутентификации
     localStorage.removeItem('auth_token');
+    // Очистка всех данных пользователя (если есть другие ключи)
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('user_') || key.startsWith('auth_') || key.includes('admin')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Очистка sessionStorage
+    sessionStorage.clear();
   },
 
   /**
