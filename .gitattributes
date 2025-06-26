@@ -1,0 +1,14 @@
+# Override GitHub language detection
+*.blade.php linguist-detectable=false
+*.php linguist-language=PHP
+*.tsx linguist-language=TypeScript  
+*.ts linguist-language=TypeScript
+*.jsx linguist-language=JavaScript
+*.js linguist-language=JavaScript
+
+# Exclude vendor and build files from language stats
+vendor/* linguist-vendored
+node_modules/* linguist-vendored
+public/build/* linguist-generated
+storage/* linguist-generated
+bootstrap/cache/* linguist-generated
