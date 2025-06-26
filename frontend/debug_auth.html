@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Auth State</title>
+</head>
+<body>
+    <h1>Debug Authentication State</h1>
+    <button onclick="showLocalStorage()">Show localStorage</button>
+    <button onclick="showSessionStorage()">Show sessionStorage</button>
+    <button onclick="clearAll()">Clear All Storage</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        function showLocalStorage() {
+            const output = document.getElementById('output');
+            let html = '<h2>localStorage:</h2><ul>';
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                html += `<li><strong>${key}:</strong> ${value}</li>`;
+            }
+            
+            html += '</ul>';
+            output.innerHTML = html;
+        }
+        
+        function showSessionStorage() {
+            const output = document.getElementById('output');
+            let html = '<h2>sessionStorage:</h2><ul>';
+            
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                const value = sessionStorage.getItem(key);
+                html += `<li><strong>${key}:</strong> ${value}</li>`;
+            }
+            
+            html += '</ul>';
+            output.innerHTML = html;
+        }
+        
+        function clearAll() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.getElementById('output').innerHTML = '<p>All storage cleared!</p>';
+        }
+    </script>
+</body>
+</html>

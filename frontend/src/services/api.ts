@@ -68,6 +68,9 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log(`[API] Request to ${config.url} with token: ${token.substring(0, 10)}...`);
+    } else {
+      console.log(`[API] Request to ${config.url} without token`);
     }
     
     return config;

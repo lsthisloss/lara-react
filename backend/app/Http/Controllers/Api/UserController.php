@@ -18,7 +18,28 @@ class UserController extends Controller
      */
     public function getCurrentUser(Request $request)
     {
-        return response()->json($request->user());
+        $token = $request->bearerToken();
+        $tokenPrefix = $token ? substr($token, 0, 20) . '...' : 'no token';
+        $user = null;
+        
+        // Получаем пользователя из токена напрямую (более надежно)
+        if ($token) {
+            $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+            if ($accessToken) {
+                $user = User::find($accessToken->tokenable_id);
+                error_log("UserController getCurrentUser - Token: $tokenPrefix, Token owner ID: {$accessToken->tokenable_id}");
+            } else {
+                error_log("UserController getCurrentUser - Token not found in database");
+            }
+        }
+        
+        // Если не удалось получить из токена, пробуем стандартный способ
+        if (!$user) {
+            $user = $request->user();
+            error_log("UserController getCurrentUser - Token: $tokenPrefix, Request user ID: " . ($user ? $user->id : 'null'));
+        }
+        
+        return response()->json($user);
     }
 
     /**

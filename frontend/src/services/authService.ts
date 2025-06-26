@@ -13,6 +13,12 @@ export const AuthService = {
    */
   login: async (data: LoginFormValues): Promise<{ user: User; token: string }> => {
     logger.log('AuthService: login attempt', { email: data.email });
+    
+    // Принудительная очистка перед входом
+    logger.log('AuthService: clearing old auth data before login');
+    localStorage.clear();
+    sessionStorage.clear();
+    
     const response = await apiClient.post('login', data);
     return response.data;
   },
@@ -22,6 +28,12 @@ export const AuthService = {
    */
   register: async (data: RegisterFormValues): Promise<{ user: User; token: string }> => {
     logger.log('AuthService: register attempt', { email: data.email });
+    
+    // Принудительная очистка перед регистрацией
+    logger.log('AuthService: clearing old auth data before registration');
+    localStorage.clear();
+    sessionStorage.clear();
+    
     const response = await apiClient.post('register', data);
     return response.data;
   },

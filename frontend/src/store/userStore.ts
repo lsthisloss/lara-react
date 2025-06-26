@@ -48,6 +48,13 @@ export class UserStore {
     this.loading = true;
     this.error = null;
     
+    // Проверяем что нет старых данных перед входом
+    const oldToken = localStorage.getItem('auth_token');
+    if (oldToken) {
+      logger.warn('UserStore: found old token before login, clearing', { oldToken: oldToken.substring(0, 10) + '...' });
+      this.clearAllData();
+    }
+    
     try {
       const { user, token } = await AuthService.login(values);
       localStorage.setItem('auth_token', token);
@@ -58,7 +65,12 @@ export class UserStore {
         this.isAuthModalOpen = false;
       });
       
-      logger.log('UserStore: login successful', { userId: user.id });
+      logger.log('UserStore: login successful', { 
+        userId: user.id, 
+        userEmail: user.email, 
+        isAdmin: user.is_admin,
+        tokenPrefix: token.substring(0, 10) + '...'
+      });
       return { success: true, user };
     } catch (error: any) {
       runInAction(() => {
@@ -76,6 +88,13 @@ export class UserStore {
     this.loading = true;
     this.error = null;
     
+    // Очищаем старые данные перед регистрацией
+    const oldToken = localStorage.getItem('auth_token');
+    if (oldToken) {
+      logger.warn('UserStore: found old token before registration, clearing', { oldToken: oldToken.substring(0, 10) + '...' });
+      this.clearAllData();
+    }
+    
     try {
       const { user, token } = await AuthService.register(values);
       localStorage.setItem('auth_token', token);
@@ -86,7 +105,12 @@ export class UserStore {
         this.isAuthModalOpen = false;
       });
       
-      logger.log('UserStore: register successful', { userId: user.id });
+      logger.log('UserStore: register successful', { 
+        userId: user.id, 
+        userEmail: user.email, 
+        isAdmin: user.is_admin,
+        tokenPrefix: token.substring(0, 10) + '...'
+      });
       return { success: true, user };
     } catch (error: any) {
       runInAction(() => {
@@ -226,16 +250,44 @@ export class UserStore {
   clearAllData() {
     logger.log('UserStore: clearing all authentication data');
     
-    // Очистка localStorage
-    localStorage.removeItem('auth_token');
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('user_') || key.startsWith('auth_') || key.includes('admin')) {
-        localStorage.removeItem(key);
+    // Логируем что было до очистки
+    const currentToken = localStorage.getItem('auth_token');
+    const currentUser = this.user;
+    logger.log('UserStore: current state before clearing', {
+      hasToken: !!currentToken,
+      tokenPrefix: currentToken?.substring(0, 10) + '...',
+      currentUserId: currentUser?.id,
+      currentUserEmail: currentUser?.email,
+      isAdmin: currentUser?.is_admin
+    });
+    
+    // Очистка localStorage - более агрессивная
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (
+        key.includes('auth') || 
+        key.includes('token') || 
+        key.includes('user') || 
+        key.includes('admin') ||
+        key.includes('session')
+      )) {
+        keysToRemove.push(key);
       }
+    }
+    
+    keysToRemove.forEach(key => {
+      logger.log(`UserStore: removing localStorage key: ${key}`);
+      localStorage.removeItem(key);
     });
     
     // Очистка sessionStorage
     sessionStorage.clear();
+    
+    // Очистка cookies связанных с auth
+    document.cookie.split(";").forEach(function(c) { 
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+    });
     
     // Очистка состояния пользователя
     runInAction(() => {
@@ -263,7 +315,11 @@ export class UserStore {
       this.rootStore.dashboardStore.error = null;
     });
     
-    logger.log('UserStore: all data cleared');
+    logger.log('UserStore: all data cleared, final state:', {
+      hasToken: !!localStorage.getItem('auth_token'),
+      userState: this.user,
+      localStorageKeys: Object.keys(localStorage)
+    });
   }
 
   get isAuthenticated() {

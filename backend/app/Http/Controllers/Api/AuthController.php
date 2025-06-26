@@ -32,7 +32,14 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Детальное логирование
+        error_log("AuthController register - Created user ID: {$user->id}, Email: {$user->email}");
+
         $token = $user->createToken('auth_token')->plainTextToken;
+        
+        // Проверяем что токен привязан к правильному пользователю
+        $tokenRecord = $user->tokens()->latest()->first();
+        error_log("AuthController register - Token created: tokenable_id={$tokenRecord->tokenable_id}, user_id={$user->id}");
 
         return response()->json([
             'user' => $user,
@@ -57,7 +64,15 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+        
+        // Детальное логирование
+        error_log("AuthController login - Authenticated user ID: {$user->id}, Email: {$user->email}");
+        
         $token = $user->createToken('auth_token')->plainTextToken;
+        
+        // Проверяем что токен привязан к правильному пользователю
+        $tokenRecord = $user->tokens()->latest()->first();
+        error_log("AuthController login - Token created: tokenable_id={$tokenRecord->tokenable_id}, user_id={$user->id}");
 
         return response()->json([
             'user' => $user,

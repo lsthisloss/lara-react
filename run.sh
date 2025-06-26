@@ -335,12 +335,14 @@ function app_migrate_seed() {
 }
 
 
-# Simple menu: 1 - Docker up, 2 - Local deps, 3 - Stop, 4 - Clean project
+# Simple menu: 1 - Docker up, 2 - Local deps, 3 - Stop, 4 - Clean project, 5 - View logs
 echo "  -------------------------------  "
 echo "  1 - Start Docker Environment"
 echo "  2 - Install Local Dependencies"
 echo "  3 - Stop All Containers"
 echo "  4 - Clean Project (containers, volumes)"
+echo "  5 - View Live Logs"
+echo "  6 - Reset Database & Fresh Start"
 echo "  -------------------------------  "
 echo -e "${CYAN}Input action number > ${NORMAL}"
 
@@ -413,6 +415,28 @@ case "$choice" in
         docker volume rm laravel-react-app_dbdata 2>/dev/null || true
         docker builder prune -f 2>/dev/null || true
         echo -e "${GREEN}✅ Project cleanup complete!${NORMAL}"
+        ;;
+    5)
+        # View live logs
+        echo -e "${CYAN}Showing live logs from all containers...${NORMAL}"
+        echo -e "${YELLOW}Press Ctrl+C to exit${NORMAL}"
+        docker compose logs --tail=100 -f
+        ;;
+    6)
+        # Reset database and fresh start
+        echo -e "${YELLOW}Resetting database and starting fresh...${NORMAL}"
+        docker compose down --timeout 10 --remove-orphans --volumes
+        docker volume rm laravel-react-app_dbdata 2>/dev/null || true
+        echo -e "${CYAN}Starting containers...${NORMAL}"
+        docker compose up -d
+        echo -e "${CYAN}Waiting for services...${NORMAL}"
+        sleep 15
+        echo -e "${CYAN}Running fresh migrations and seeders...${NORMAL}"
+        docker compose exec backend php artisan migrate:fresh --seed --force
+        echo -e "${GREEN}✅ Fresh start complete!${NORMAL}"
+        echo -e "${CYAN}Admin: admin@dev.pro / password${NORMAL}"
+        echo -e "${CYAN}Showing logs...${NORMAL}"
+        docker compose logs --tail=50 -f
         ;;
     *)
         echo -e "\n${RED}Invalid action number${NORMAL}\n"
