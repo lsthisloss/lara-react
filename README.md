@@ -34,7 +34,36 @@ chmod +x run.sh && ./run.sh
 # Select 0 for first setup, 1 for daily dev
 ```
 
-**Access:** Frontend: http://localhost:3000 | API: http://localhost:8000/api
+<details>
+  
+  <summary>
+<Strong>Первый сетап считается успешно запущенным если вы увидели вывод такого типа:</Strong>
+  </summary>
+  
+```bash
+[+] Building 2/2
+ ✔ frontend  Built                                                                                                                                                                                     0.0s 
+ ✔ backend   Built                                                                                                                                                                                     0.0s 
+Starting containers...
+[+] Running 6/6
+ ✔ Network laravel-react-app_app-network  Created                                                                                                                                                      0.0s 
+ ✔ Volume "laravel-react-app_dbdata"      Created                                                                                                                                                      0.0s 
+ ✔ Container laravel-db                   Healthy                                                                                                                                                      9.1s 
+ ✔ Container laravel-backend              Healthy                                                                                                                                                     14.7s 
+ ✔ Container laravel-nginx                Started                                                                                                                                                      9.4s 
+ ✔ Container react-frontend               Started                                                                                                                                                     14.9s 
+Generating application key...
+
+   INFO  Application key set successfully.  
+
+
+✅ First setup complete!
+Frontend: http://localhost:3000
+Backend: http://localhost:8000
+Database: localhost:5432
+```
+
+</details>
 
 ---
 
