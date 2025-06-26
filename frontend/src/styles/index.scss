@@ -1,0 +1,106 @@
+// Import base styles
+@import 'variables';
+@import 'mixins';
+@import 'responsive';
+@import 'base';
+@import 'animations';
+
+// Import component styles
+@import 'layout';
+@import 'dashboard';
+
+// Import page styles
+@import 'auth';
+
+// Utility classes
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.m-0 { margin: 0; }
+.mt-0 { margin-top: 0; }
+.mr-0 { margin-right: 0; }
+.mb-0 { margin-bottom: 0; }
+.ml-0 { margin-left: 0; }
+
+.p-0 { padding: 0; }
+.pt-0 { padding-top: 0; }
+.pr-0 { padding-right: 0; }
+.pb-0 { padding-bottom: 0; }
+.pl-0 { padding-left: 0; }
+
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+.d-flex { display: flex; }
+.d-block { display: block; }
+.d-inline { display: inline; }
+.d-inline-block { display: inline-block; }
+.d-none { display: none; }
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+// Ant Design customizations
+.ant-layout {
+  background: $background-color-base;
+}
+
+.ant-card {
+  border-radius: $border-radius;
+  box-shadow: $shadow-1;
+  
+  &:hover {
+    box-shadow: $shadow-2;
+  }
+}
+
+.ant-btn {
+  border-radius: $border-radius;
+  font-weight: 500;
+  
+  &.ant-btn-primary {
+    background: $primary-color;
+    border-color: $primary-color;
+    
+    &:hover {
+      background: darken($primary-color, 10%);
+      border-color: darken($primary-color, 10%);
+    }
+  }
+  
+  &.ant-btn-danger {
+    background: $error-color;
+    border-color: $error-color;
+    
+    &:hover {
+      background: darken($error-color, 10%);
+      border-color: darken($error-color, 10%);
+    }
+  }
+}
+
+.ant-input,
+.ant-input-password,
+.ant-select-selector {
+  border-radius: $border-radius;
+  transition: all 0.3s ease;
+}
+
+.ant-table {
+  .ant-table-thead > tr > th {
+    background: $background-color-light;
+    font-weight: 600;
+  }
+}
+
+.ant-modal {
+  .ant-modal-content {
+    border-radius: $border-radius;
+  }
+}

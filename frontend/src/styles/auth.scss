@@ -1,0 +1,117 @@
+@import 'variables';
+@import 'mixins';
+
+.auth-page {
+  @include flex-center;
+  @include full-size;
+  min-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: $spacing-lg;
+  z-index: $zindex-modal;
+}
+
+.auth-card {
+  @include card;
+  @include fade-in;
+  border-radius: 12px;
+  box-shadow: $shadow-3;
+  padding: $spacing-xxl;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  background: $background-color-white;
+
+  .auth-lock {
+    @include flex-center;
+    width: 80px;
+    height: 80px;
+    background: rgba($primary-color, 0.1);
+    border-radius: 50%;
+    margin: 0 auto $spacing-lg;
+    
+    .anticon {
+      font-size: 2rem;
+      color: $primary-color;
+    }
+  }
+
+  .ant-typography h2 {
+    color: $text-color;
+    margin-bottom: $spacing-sm;
+    font-weight: 600;
+  }
+
+  .ant-btn {
+    height: 48px;
+    font-weight: 500;
+    border-radius: $border-radius-lg;
+    
+    &.ant-btn-primary {
+      @include button-hover($primary-color);
+      border: none;
+    }
+  }
+
+  .ant-input,
+  .ant-input-password {
+    height: 48px;
+    border-radius: $border-radius-lg;
+    border: 2px solid $border-color-light;
+    transition: all $transition-base ease;
+    
+    &:focus,
+    &.ant-input-focused {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+    }
+  }
+
+  .ant-form-item {
+    margin-bottom: $spacing-lg;
+  }
+
+  .ant-progress-line {
+    margin-bottom: $spacing-sm;
+  }
+
+  .ant-alert {
+    border-radius: $border-radius-lg;
+    margin-bottom: $spacing-md;
+  }
+
+  .ant-space {
+    width: 100%;
+  }
+}
+
+// Modal styles
+.auth-modal {
+  .ant-modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .ant-modal-header {
+    border-radius: 12px 12px 0 0;
+    background: $background-color-light;
+    border-bottom: 1px solid $border-color-split;
+  }
+  
+  .ant-modal-footer {
+    border-top: 1px solid $border-color-split;
+  }
+}
+
+// Responsive auth page
+@include mobile {
+  .auth-page {
+    padding: $spacing-md;
+  }
+  
+  .auth-card {
+    padding: $spacing-lg;
+  }
+}

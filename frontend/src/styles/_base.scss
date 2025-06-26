@@ -1,0 +1,119 @@
+@import 'variables';
+@import 'mixins';
+
+// Reset styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  @include full-size;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+    'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: $background-color-base;
+  color: $text-color;
+  line-height: 1.5715;
+}
+
+#root {
+  @include full-size;
+  min-height: 100vh;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  color: $text-color;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: $spacing-md;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: $spacing-md;
+  color: $text-color;
+  line-height: 1.5715;
+}
+
+// Links
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: lighten($primary-color, 10%);
+  }
+}
+
+// Lists
+ul, ol {
+  padding-left: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+li {
+  margin-bottom: $spacing-xs;
+}
+
+// Code
+code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  background-color: $background-color-light;
+  padding: 2px 4px;
+  border-radius: $border-radius-sm;
+  font-size: 0.875em;
+}
+
+// Images
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// Form elements
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+// Scrollbars (webkit)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $background-color-light;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-color-base;
+  border-radius: 4px;
+
+  &:hover {
+    background: darken($border-color-base, 10%);
+  }
+}
+
+// Focus styles
+:focus {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// Selection
+::selection {
+  background-color: rgba($primary-color, 0.2);
+  color: $text-color;
+}

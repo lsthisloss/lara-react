@@ -1,0 +1,140 @@
+@import 'variables';
+@import 'responsive';
+
+.app-layout {
+  min-height: 100vh;
+
+  .layout-header {
+    @include flex-between;
+    background: $background-color-white;
+    box-shadow: $shadow-1;
+    padding: 0 $spacing-lg;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: $zindex-fixed;
+    
+    @include mobile-only {
+      padding: 0 $spacing-md;
+      height: 56px;
+    }
+
+    .header-left {
+      @include flex-center;
+
+      .logo {
+        margin: 0;
+        color: $primary-color;
+        
+        @include mobile-only {
+          font-size: 18px;
+        }
+      }
+
+      .mobile-menu-trigger {
+        display: none;
+        margin-right: $spacing-md;
+        
+        @include mobile-only {
+          display: inline-flex;
+        }
+      }
+    }
+
+    .header-right {
+      @include flex-center;
+      
+      .user-info {
+        @include mobile-only {
+          display: none;
+        }
+      }
+
+      .user-avatar {
+        border: none;
+        padding: 4px;
+        
+        @include mobile-only {
+          padding: 2px;
+          
+          .ant-avatar {
+            width: 24px;
+            height: 24px;
+            line-height: 22px;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-layout {
+    margin-top: 64px; // Header height
+    
+    @include mobile-only {
+      margin-top: 56px;
+    }
+
+    .layout-sider {
+      background: $background-color-white;
+      border-right: 1px solid $border-color-light;
+      position: fixed;
+      left: 0;
+      top: 64px;
+      bottom: 0;
+      z-index: $zindex-sticky;
+      
+      @include mobile-only {
+        display: none; // Hide on mobile, use drawer instead
+      }
+
+      .ant-menu {
+        height: 100%;
+        border-right: 0;
+        padding-top: $spacing-md;
+
+        .ant-menu-item {
+          margin: 0;
+          
+          @include mobile-only {
+            height: 36px;
+            line-height: 36px;
+          }
+        }
+      }
+    }
+
+    .layout-content {
+      padding: $spacing-xl;
+      background: $background-color-base;
+      min-height: calc(100vh - 64px);
+      margin-left: 240px; // Sidebar width
+      
+      @include mobile-only {
+        margin-left: 0; // No sidebar on mobile
+        padding: $spacing-md;
+        min-height: calc(100vh - 56px);
+      }
+    }
+  }
+}
+
+// Mobile drawer styles
+.mobile-menu-drawer {
+  @include desktop-only {
+    display: none;
+  }
+
+  .ant-drawer-body {
+    padding: 0;
+
+    .ant-menu {
+      border-right: 0;
+
+      .ant-menu-item {
+        margin: 0;
+        padding: $spacing-md $spacing-lg;
+      }
+    }
+  }
+}

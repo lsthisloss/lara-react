@@ -38,11 +38,16 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Create additional users using factory only if we have less than 15 users
-        $currentUserCount = User::count();
-        if ($currentUserCount < 15) {
-            $usersToCreate = 15 - $currentUserCount;
-            User::factory($usersToCreate)->create();
+        // Create additional users manually (without factory for now)
+        $userCount = User::count();
+        if ($userCount < 15) {
+            for ($i = $userCount; $i < 15; $i++) {
+                User::create([
+                    'name' => 'User ' . ($i + 1),
+                    'email' => 'user' . ($i + 1) . '@example.com',
+                    'password' => Hash::make('password'),
+                ]);
+            }
         }
     }
 }
