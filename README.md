@@ -124,5 +124,5 @@ Password: password
 ---
 
 Built with ❤️ by **sk8** for modern web development    
-Development Timeline 9h
+Development Timeline 6h
 
