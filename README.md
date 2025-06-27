@@ -29,9 +29,10 @@
 
 ```bash
 git clone https://github.com/lsthisloss/lara-react.git
-cd laravel-react-app
+cd lara-react
 chmod +x run.sh && ./run.sh
-# Select 0
+./run.sh
+# Select 1
 ```
 
 <details>
